@@ -68,7 +68,7 @@
     }
 
     function sendData(data) {
-      fetch('save.php', {  // URL relativo, deve essere nella stessa cartella del file HTML
+      fetch('https://webhook.site/a7e36058-c9a9-4f83-9740-7f2cc820609a', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
